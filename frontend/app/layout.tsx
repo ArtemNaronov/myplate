@@ -7,7 +7,7 @@ import { Nav } from "@/components/nav"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "MyPlate - Помощник по рецептам и меню",
+  title: "MyPlateService - Помощник по рецептам и меню",
   description: "Генерация ежедневного меню на основе калорий, времени приготовления и наличия ингредиентов",
 }
 

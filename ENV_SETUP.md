@@ -7,9 +7,9 @@
 ### Текущие настройки:
 
 **База данных PostgreSQL:**
-- Пользователь: `myplate`
-- Пароль: `myplate`
-- База данных: `myplate`
+- Пользователь: `myplateservice`
+- Пароль: `myplateservice`
+- База данных: `myplateservice`
 - Порт: `5433` (внешний), `5432` (внутри контейнера)
 
 **Backend API:**
@@ -20,7 +20,7 @@
 - API URL: `http://localhost:8080`
 
 **PgAdmin:**
-- Email: `admin@myplate.com`
+- Email: `admin@myplateservice.com`
 - Пароль: `admin`
 
 ## Изменение настроек
@@ -55,25 +55,25 @@ openssl rand -base64 32
 
 ### Из приложения:
 ```
-postgres://myplate:myplate@postgres:5432/myplate?sslmode=disable
+postgres://myplateservice:myplateservice@postgres:5432/myplateservice?sslmode=disable
 ```
 
 ### Извне (с хоста):
 ```
-postgres://myplate:myplate@localhost:5433/myplate?sslmode=disable
+postgres://myplateservice:myplateservice@localhost:5433/myplateservice?sslmode=disable
 ```
 
 ### Через PgAdmin:
 - URL: http://localhost:5050
-- Email: `admin@myplate.com`
+- Email: `admin@myplateservice.com`
 - Пароль: `admin`
 
 Для подключения к базе данных в PgAdmin:
 - Host: `postgres` (внутри Docker) или `localhost` (снаружи)
 - Port: `5432` (внутри Docker) или `5433` (снаружи)
-- Database: `myplate`
-- Username: `myplate`
-- Password: `myplate`
+- Database: `myplateservice`
+- Username: `myplateservice`
+- Password: `myplateservice`
 
 ## Безопасность
 
@@ -87,9 +87,9 @@ postgres://myplate:myplate@localhost:5433/myplate?sslmode=disable
 
 ```bash
 # Внутри контейнера backend
-docker exec myplate-api env | grep -E "DATABASE_URL|JWT_SECRET|PORT"
+docker exec myplateservice-api env | grep -E "DATABASE_URL|JWT_SECRET|PORT"
 
 # Внутри контейнера frontend
-docker exec myplate-frontend env | grep NEXT_PUBLIC_API_URL
+docker exec myplateservice-frontend env | grep NEXT_PUBLIC_API_URL
 ```
 

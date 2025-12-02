@@ -1,11 +1,11 @@
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: myplate-postgres
+    container_name: myplateservice-postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-myplate}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-myplate}
-      POSTGRES_DB: ${POSTGRES_DB:-myplate}
+      POSTGRES_USER: ${POSTGRES_USER:-myplateservice}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-myplateservice}
+      POSTGRES_DB: ${POSTGRES_DB:-myplateservice}
     ports:
       - "5433:5432"
     volumes:
@@ -13,7 +13,7 @@ services:
       - ./sql/migrations/001_initial_schema.sql:/docker-entrypoint-initdb.d/001_initial_schema.sql
       - ./sql/seed.sql:/docker-entrypoint-initdb.d/002_seed.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U myplate"]
+      test: ["CMD-SHELL", "pg_isready -U myplateservice"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -22,9 +22,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    container_name: myplate-api
+    container_name: myplateservice-api
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgres://myplate:myplate@postgres:5432/myplate?sslmode=disable}
+      DATABASE_URL: ${DATABASE_URL:-postgres://myplateservice:myplateservice@postgres:5432/myplateservice?sslmode=disable}
       JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       PORT: ${PORT:-8080}
@@ -39,7 +39,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    container_name: myplate-frontend
+    container_name: myplateservice-frontend
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080}
     ports:
@@ -50,9 +50,9 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: myplate-pgadmin
+    container_name: myplateservice-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@myplate.com}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@myplateservice.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
     ports:
       - "5050:80"

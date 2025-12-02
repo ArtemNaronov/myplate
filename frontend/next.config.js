@@ -6,8 +6,8 @@ const nextConfig = {
     unoptimized: true,
   },
   // Для GitHub Pages - раскомментируйте и укажите название репозитория
-  // basePath: process.env.NODE_ENV === 'production' ? '/MyPlate' : '',
-  // assetPrefix: process.env.NODE_ENV === 'production' ? '/MyPlate' : '',
+  // basePath: process.env.NODE_ENV === 'production' ? '/MyPlateService' : '',
+  // assetPrefix: process.env.NODE_ENV === 'production' ? '/MyPlateService' : '',
 }
 
 module.exports = nextConfig
