@@ -45,29 +45,22 @@ export function TelegramProvider({ children }: { children: React.ReactNode }) {
       }
     } else {
       // Если не в Telegram, проверяем наличие токена
-      // Если токена нет, авторизуемся через тестовый endpoint
       const token = localStorage.getItem("token")
-      if (!token) {
-        api.get("/auth/test")
+      if (token) {
+        // Если токен есть, проверяем его валидность, получая информацию о пользователе
+        api.get("/auth/profile")
           .then((response) => {
-            if (response.data && response.data.token) {
-              localStorage.setItem("token", response.data.token)
-              setUser(response.data.user)
-              console.log("Авторизация успешна (тестовый пользователь)")
-            }
+            setUser(response.data)
           })
           .catch((error) => {
-            console.error("Ошибка тестовой авторизации:", error)
-            // Показываем предупреждение пользователю
-            if (error.response) {
-              console.error("Ответ сервера:", error.response.data)
+            // Если токен невалидный, удаляем его
+            if (error.response?.status === 401) {
+              localStorage.removeItem("token")
             }
+            console.error("Ошибка при проверке токена:", error)
           })
-      } else {
-        // Если токен есть, проверяем его валидность, получая информацию о пользователе
-        // (можно добавить endpoint для проверки токена)
-        console.log("Токен найден в localStorage")
       }
+      // Если токена нет, пользователь должен войти через форму входа
     }
   }, [])
 

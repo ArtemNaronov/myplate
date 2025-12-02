@@ -73,6 +73,8 @@ func main() {
 	// Public routes (должны быть ДО создания защищенной группы)
 	app.Get("/auth/test", authHandler.TestAuth) // Тестовая авторизация для разработки
 	app.Post("/auth/telegram", authHandler.AuthenticateTelegram)
+	app.Post("/auth/register", authHandler.Register) // Регистрация
+	app.Post("/auth/login", authHandler.Login)         // Вход
 	app.Get("/recipes", recipeHandler.GetAll)
 	app.Get("/recipes/:id", recipeHandler.GetByID)
 	app.Get("/health", func(c *fiber.Ctx) error {
@@ -81,6 +83,11 @@ func main() {
 	
 	// Protected routes
 	api := app.Group("/", middleware.AuthMiddleware(authService))
+	
+	// Auth routes (требуют авторизации)
+	api.Get("/auth/profile", authHandler.GetProfile)              // Получить профиль
+	api.Put("/auth/profile", authHandler.UpdateProfile)           // Обновить профиль
+	api.Put("/auth/password", authHandler.UpdatePassword)         // Обновить пароль
 	
 	// Menu routes
 	api.Post("/menus/generate", menuHandler.Generate)

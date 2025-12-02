@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"golang.org/x/crypto/bcrypt"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/myplate/backend/internal/models"
 	"github.com/myplate/backend/internal/repositories"
@@ -170,6 +171,140 @@ func (s *AuthService) CreateTestUser() (*models.User, string, error) {
 	}
 	
 	return user, token, nil
+}
+
+// Register создает нового пользователя с email и паролем
+func (s *AuthService) Register(email, password, firstName, lastName string) (*models.User, string, error) {
+	// Проверяем, существует ли пользователь с таким email
+	existingUser, err := s.userRepo.GetByEmail(email)
+	if err != nil {
+		return nil, "", fmt.Errorf("ошибка при проверке email: %w", err)
+	}
+	if existingUser != nil {
+		return nil, "", fmt.Errorf("пользователь с таким email уже существует")
+	}
+
+	// Хешируем пароль
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, "", fmt.Errorf("ошибка при хешировании пароля: %w", err)
+	}
+
+	// Создаем пользователя
+	user, err := s.userRepo.Create(email, string(passwordHash), firstName, lastName)
+	if err != nil {
+		return nil, "", fmt.Errorf("ошибка при создании пользователя: %w", err)
+	}
+
+	// Генерируем JWT токен
+	token, err := s.GenerateJWT(user.ID)
+	if err != nil {
+		return nil, "", fmt.Errorf("ошибка при генерации токена: %w", err)
+	}
+
+	return user, token, nil
+}
+
+// Login авторизует пользователя по email и паролю
+func (s *AuthService) Login(email, password string) (*models.User, string, error) {
+	// Получаем пользователя по email
+	user, err := s.userRepo.GetByEmail(email)
+	if err != nil {
+		return nil, "", fmt.Errorf("ошибка при поиске пользователя: %w", err)
+	}
+	if user == nil {
+		return nil, "", fmt.Errorf("неверный email или пароль")
+	}
+
+	// Проверяем пароль
+	if user.PasswordHash == "" {
+		return nil, "", fmt.Errorf("у пользователя не установлен пароль")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
+	if err != nil {
+		return nil, "", fmt.Errorf("неверный email или пароль")
+	}
+
+	// Генерируем JWT токен
+	token, err := s.GenerateJWT(user.ID)
+	if err != nil {
+		return nil, "", fmt.Errorf("ошибка при генерации токена: %w", err)
+	}
+
+	// Очищаем password_hash перед возвратом
+	user.PasswordHash = ""
+
+	return user, token, nil
+}
+
+// GetUserProfile получает профиль пользователя по ID
+func (s *AuthService) GetUserProfile(userID int) (*models.User, error) {
+	user, err := s.userRepo.GetByID(userID)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка при получении профиля: %w", err)
+	}
+	if user == nil {
+		return nil, fmt.Errorf("пользователь не найден")
+	}
+	return user, nil
+}
+
+// UpdatePassword обновляет пароль пользователя
+func (s *AuthService) UpdatePassword(userID int, oldPassword, newPassword string) error {
+	// Получаем пользователя
+	user, err := s.userRepo.GetByID(userID)
+	if err != nil {
+		return fmt.Errorf("ошибка при получении пользователя: %w", err)
+	}
+	if user == nil {
+		return fmt.Errorf("пользователь не найден")
+	}
+
+	// Если у пользователя есть пароль, проверяем старый
+	if user.PasswordHash != "" {
+		userWithPassword, err := s.userRepo.GetByEmail(user.Email)
+		if err != nil {
+			return fmt.Errorf("ошибка при проверке пароля: %w", err)
+		}
+		if userWithPassword == nil {
+			return fmt.Errorf("пользователь не найден")
+		}
+
+		err = bcrypt.CompareHashAndPassword([]byte(userWithPassword.PasswordHash), []byte(oldPassword))
+		if err != nil {
+			return fmt.Errorf("неверный текущий пароль")
+		}
+	}
+
+	// Хешируем новый пароль
+	newPasswordHash, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("ошибка при хешировании пароля: %w", err)
+	}
+
+	// Обновляем пароль
+	err = s.userRepo.UpdatePassword(userID, string(newPasswordHash))
+	if err != nil {
+		return fmt.Errorf("ошибка при обновлении пароля: %w", err)
+	}
+
+	return nil
+}
+
+// UpdateProfile обновляет профиль пользователя
+func (s *AuthService) UpdateProfile(userID int, firstName, lastName string) (*models.User, error) {
+	err := s.userRepo.UpdateProfile(userID, firstName, lastName)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка при обновлении профиля: %w", err)
+	}
+
+	user, err := s.userRepo.GetByID(userID)
+	if err != nil {
+		return nil, fmt.Errorf("ошибка при получении обновленного профиля: %w", err)
+	}
+
+	return user, nil
 }
 
 

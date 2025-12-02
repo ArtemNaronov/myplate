@@ -3,13 +3,15 @@ package models
 import "time"
 
 type User struct {
-	ID         int       `json:"id"`
-	TelegramID int64     `json:"telegram_id"`
-	Username   string    `json:"username"`
-	FirstName  string    `json:"first_name"`
-	LastName   string    `json:"last_name"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	ID           int       `json:"id"`
+	TelegramID   *int64    `json:"telegram_id,omitempty"`
+	Email        string    `json:"email,omitempty"`
+	Username     string    `json:"username"`
+	FirstName    string    `json:"first_name"`
+	LastName     string    `json:"last_name"`
+	PasswordHash string    `json:"-"` // Не возвращаем в JSON
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 type UserGoals struct {

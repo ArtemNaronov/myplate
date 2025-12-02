@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -15,7 +15,20 @@ import { Menu } from "lucide-react"
 
 export function Nav() {
   const pathname = usePathname()
+  const router = useRouter()
   const [open, setOpen] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+    setIsAuthenticated(!!token)
+  }, [pathname])
+
+  const handleLogout = () => {
+    localStorage.removeItem("token")
+    setIsAuthenticated(false)
+    router.push("/auth/login")
+  }
 
   const navItems = [
     { href: "/", label: "Главная" },
@@ -46,6 +59,27 @@ export function Nav() {
                 </Button>
               </Link>
             ))}
+            {isAuthenticated ? (
+              <>
+                <Link href="/profile">
+                  <Button
+                    variant={pathname === "/profile" ? "default" : "ghost"}
+                    size="sm"
+                  >
+                    Профиль
+                  </Button>
+                </Link>
+                <Button variant="ghost" size="sm" onClick={handleLogout}>
+                  Выйти
+                </Button>
+              </>
+            ) : (
+              <Link href="/auth/login">
+                <Button variant="outline" size="sm">
+                  Войти
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Navigation */}
@@ -75,6 +109,34 @@ export function Nav() {
                     </Button>
                   </Link>
                 ))}
+                {isAuthenticated ? (
+                  <>
+                    <Link href="/profile" onClick={() => setOpen(false)}>
+                      <Button
+                        variant={pathname === "/profile" ? "default" : "ghost"}
+                        className="w-full justify-start"
+                      >
+                        Профиль
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={() => {
+                        handleLogout()
+                        setOpen(false)
+                      }}
+                    >
+                      Выйти
+                    </Button>
+                  </>
+                ) : (
+                  <Link href="/auth/login" onClick={() => setOpen(false)}>
+                    <Button variant="outline" className="w-full justify-start">
+                      Войти
+                    </Button>
+                  </Link>
+                )}
               </nav>
             </SheetContent>
           </Sheet>
