@@ -133,11 +133,19 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 
 // GetProfile возвращает профиль текущего пользователя
 func (h *AuthHandler) GetProfile(c *fiber.Ctx) error {
-	userID := c.Locals("user_id").(int)
+	userIDInterface := c.Locals("user_id")
+	if userIDInterface == nil {
+		return c.Status(401).JSON(fiber.Map{"error": "Пользователь не авторизован"})
+	}
+
+	userID, ok := userIDInterface.(int)
+	if !ok {
+		return c.Status(500).JSON(fiber.Map{"error": "Ошибка при получении ID пользователя"})
+	}
 
 	user, err := h.authService.GetUserProfile(userID)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		return c.Status(500).JSON(fiber.Map{"error": "ошибка при получении профиля: " + err.Error()})
 	}
 
 	return c.JSON(user)

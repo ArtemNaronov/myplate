@@ -53,8 +53,8 @@ export function TelegramProvider({ children }: { children: React.ReactNode }) {
             setUser(response.data)
           })
           .catch((error) => {
-            // Если токен невалидный, удаляем его
-            if (error.response?.status === 401) {
+            // Если токен невалидный или ошибка сервера, удаляем его
+            if (error.response?.status === 401 || error.response?.status === 500) {
               localStorage.removeItem("token")
             }
             console.error("Ошибка при проверке токена:", error)

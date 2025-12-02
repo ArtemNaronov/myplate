@@ -20,11 +20,17 @@ export default function GoalsPage() {
   useEffect(() => {
     api.get("/users/goals")
       .then((response) => {
-        setGoals(response.data)
+        if (response.data) {
+          setGoals(response.data)
+        }
         setLoading(false)
       })
       .catch((error) => {
         console.error("Error fetching goals:", error)
+        // Если 404 или нет данных, используем значения по умолчанию
+        if (error.response?.status === 404) {
+          setGoals(null) // Будет использован defaultGoals
+        }
         setLoading(false)
       })
   }, [])

@@ -25,11 +25,13 @@ export default function PantryPage() {
   const fetchItems = () => {
     api.get("/pantry")
       .then((response) => {
-        setItems(response.data)
+        // Убеждаемся, что response.data это массив
+        setItems(Array.isArray(response.data) ? response.data : [])
         setLoading(false)
       })
       .catch((error) => {
         console.error("Error fetching pantry:", error)
+        setItems([]) // Устанавливаем пустой массив при ошибке
         setLoading(false)
       })
   }

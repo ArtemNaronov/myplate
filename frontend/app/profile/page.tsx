@@ -48,10 +48,11 @@ export default function ProfilePage() {
         lastName: response.data.last_name || "",
       })
     } catch (err: any) {
-      if (err.response?.status === 401) {
+      if (err.response?.status === 401 || err.response?.status === 500) {
+        localStorage.removeItem("token")
         router.push("/auth/login")
       } else {
-        setError("Ошибка при загрузке профиля")
+        setError(err.response?.data?.error || "Ошибка при загрузке профиля")
       }
     } finally {
       setLoading(false)
