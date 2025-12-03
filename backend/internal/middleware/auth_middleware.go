@@ -17,12 +17,24 @@ func AuthMiddleware(authService *services.AuthService) fiber.Handler {
 			token = token[7:]
 		}
 		
-		userID, err := authService.ValidateJWT(token)
+		userID, role, err := authService.ValidateJWT(token)
 		if err != nil {
 			return c.Status(401).JSON(fiber.Map{"error": "Неверный токен"})
 		}
 		
 		c.Locals("user_id", userID)
+		c.Locals("user_role", role)
+		return c.Next()
+	}
+}
+
+// AdminMiddleware проверяет, что пользователь является администратором
+func AdminMiddleware() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		role, ok := c.Locals("user_role").(string)
+		if !ok || role != "admin" {
+			return c.Status(403).JSON(fiber.Map{"error": "Доступ запрещен. Требуются права администратора"})
+		}
 		return c.Next()
 	}
 }

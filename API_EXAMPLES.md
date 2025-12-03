@@ -4,7 +4,104 @@
 
 ## Базовые примеры
 
-### 1. Получение токена (тестовая авторизация)
+### 1. Регистрация нового пользователя
+
+```bash
+curl -X POST http://localhost:8080/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "securepassword123",
+    "first_name": "Иван",
+    "last_name": "Иванов"
+  }'
+```
+
+**Ответ:**
+```json
+{
+  "user": {
+    "id": 1,
+    "email": "user@example.com",
+    "first_name": "Иван",
+    "last_name": "Иванов"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+### 2. Вход в систему
+
+```bash
+curl -X POST http://localhost:8080/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "securepassword123"
+  }'
+```
+
+**Ответ:**
+```json
+{
+  "user": {
+    "id": 1,
+    "email": "user@example.com",
+    "first_name": "Иван",
+    "last_name": "Иванов"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+Сохраните токен для последующих запросов:
+```bash
+export TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+### 3. Получение профиля
+
+```bash
+curl -X GET http://localhost:8080/auth/profile \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+**Ответ:**
+```json
+{
+  "id": 1,
+  "email": "user@example.com",
+  "first_name": "Иван",
+  "last_name": "Иванов",
+  "created_at": "2025-12-02T10:00:00Z"
+}
+```
+
+### 4. Обновление профиля
+
+```bash
+curl -X PUT http://localhost:8080/auth/profile \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "first_name": "Петр",
+    "last_name": "Петров"
+  }'
+```
+
+### 5. Смена пароля
+
+```bash
+curl -X PUT http://localhost:8080/auth/password \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "old_password": "securepassword123",
+    "new_password": "newsecurepassword456"
+  }'
+```
+
+### 6. Получение токена (тестовая авторизация)
 
 ```bash
 curl -X GET http://localhost:8080/auth/test
@@ -24,18 +121,13 @@ curl -X GET http://localhost:8080/auth/test
 }
 ```
 
-Сохраните токен для последующих запросов:
-```bash
-export TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-```
-
-### 2. Получение списка рецептов
+### 7. Получение списка рецептов
 
 ```bash
 curl -X GET http://localhost:8080/recipes
 ```
 
-### 3. Получение деталей рецепта
+### 8. Получение деталей рецепта
 
 ```bash
 curl -X GET http://localhost:8080/recipes/1
@@ -45,6 +137,7 @@ curl -X GET http://localhost:8080/recipes/1
 
 ### Генерация меню
 
+**Полный запрос:**
 ```bash
 curl -X POST http://localhost:8080/menus/generate \
   -H "Authorization: Bearer $TOKEN" \
@@ -55,22 +148,24 @@ curl -X POST http://localhost:8080/menus/generate \
     "diet_type": "vegetarian",
     "allergies": ["nuts"],
     "max_total_time": 60,
+    "max_time_per_meal": 30,
     "consider_pantry": true,
     "pantry_importance": "prefer"
   }'
 ```
 
-**Минимальный запрос:**
+**Минимальный запрос (target_calories автоматически из user_goals):**
 ```bash
 curl -X POST http://localhost:8080/menus/generate \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "user_id": 1,
-    "target_calories": 2000,
     "consider_pantry": false
   }'
 ```
+
+**Примечание:** Если `target_calories` не указан, система автоматически использует значение из `user_goals` пользователя. Если целей нет, используется значение по умолчанию (2000 ккал).
 
 ### Получение списка всех меню
 
@@ -143,6 +238,59 @@ curl -X POST http://localhost:8080/users/goals \
 ```bash
 curl -X GET http://localhost:8080/users/goals \
   -H "Authorization: Bearer $TOKEN"
+```
+
+## Работа с меню
+
+### Генерация недельного меню
+
+```bash
+curl -X GET "http://localhost:8080/menu/weekly?adults=2&children=1" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### Сохранение недельного меню
+
+```bash
+curl -X POST http://localhost:8080/menu/weekly/save \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "week": [
+      {
+        "day": 1,
+        "breakfast": {...},
+        "lunch": {...},
+        "dinner": {...},
+        "totalCalories": 2560,
+        "totalProteins": 104,
+        "totalFats": 96,
+        "totalCarbs": 336,
+        "totalTime": 55
+      }
+    ]
+  }'
+```
+
+### Получение всех недельных меню
+
+```bash
+curl -X GET http://localhost:8080/menus/weekly \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### Удаление меню
+
+```bash
+curl -X DELETE http://localhost:8080/menus/1 \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+**Ответ:**
+```json
+{
+  "message": "Меню успешно удалено"
+}
 ```
 
 ## Работа со списками покупок

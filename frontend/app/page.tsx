@@ -14,72 +14,84 @@ export default function Home() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
-          <Card>
+          <Card className="flex flex-col">
             <CardHeader>
               <CardTitle>Рецепты</CardTitle>
               <CardDescription>Просмотрите нашу коллекцию рецептов</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 flex flex-col justify-end">
               <Link href="/recipes">
                 <Button className="w-full">Просмотреть рецепты</Button>
               </Link>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="flex flex-col">
             <CardHeader>
               <CardTitle>Генератор меню</CardTitle>
               <CardDescription>Создайте ваше ежедневное меню</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 flex flex-col justify-end">
               <Link href="/menu/generate">
                 <Button className="w-full">Создать меню</Button>
               </Link>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="flex flex-col">
+            <CardHeader>
+              <CardTitle>Меню на неделю</CardTitle>
+              <CardDescription>Создайте меню на 7 дней с учетом семьи</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 flex flex-col justify-end">
+              <Link href="/menu/weekly">
+                <Button className="w-full">Создать недельное меню</Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="flex flex-col">
             <CardHeader>
               <CardTitle>Мои цели</CardTitle>
               <CardDescription>Установите ваши цели по питанию</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 flex flex-col justify-end">
               <Link href="/goals">
                 <Button className="w-full">Установить цели</Button>
               </Link>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="flex flex-col">
             <CardHeader>
               <CardTitle>Кладовая</CardTitle>
               <CardDescription>Управляйте вашими ингредиентами</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 flex flex-col justify-end">
               <Link href="/pantry">
                 <Button className="w-full">Просмотреть кладовую</Button>
               </Link>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="flex flex-col">
             <CardHeader>
               <CardTitle>Мои меню</CardTitle>
               <CardDescription>Просмотрите все ваши созданные меню</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 flex flex-col justify-end">
               <Link href="/menus">
                 <Button className="w-full">Просмотреть меню</Button>
               </Link>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="flex flex-col">
             <CardHeader>
               <CardTitle>Список покупок</CardTitle>
               <CardDescription>Просмотрите ваши списки покупок</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 flex flex-col justify-end">
               <Link href="/shopping-list">
                 <Button className="w-full" variant="outline">Просмотреть списки</Button>
               </Link>

@@ -40,13 +40,13 @@ export default function RecipesPage() {
       <h1 className="text-3xl font-bold mb-6">Рецепты</h1>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {recipes.map((recipe) => (
-          <Card key={recipe.id}>
+          <Card key={recipe.id} className="flex flex-col">
             <CardHeader>
               <CardTitle>{recipe.name}</CardTitle>
               <CardDescription>{recipe.description}</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2 mb-4">
+            <CardContent className="flex-1 flex flex-col">
+              <div className="space-y-2 mb-4 flex-1">
                 <p className="text-sm">
                   <span className="font-semibold">Калории:</span> {recipe.calories}
                 </p>

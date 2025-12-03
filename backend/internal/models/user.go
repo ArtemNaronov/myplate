@@ -10,6 +10,7 @@ type User struct {
 	FirstName    string    `json:"first_name"`
 	LastName     string    `json:"last_name"`
 	PasswordHash string    `json:"-"` // Не возвращаем в JSON
+	Role         string    `json:"role"` // user или admin
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }

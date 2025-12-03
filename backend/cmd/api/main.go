@@ -40,8 +40,9 @@ func main() {
 	recipeService := services.NewRecipeService(recipeRepo)
 	userService := services.NewUserService(goalsRepo)
 	pantryService := services.NewPantryService(pantryRepo)
-	menuService := services.NewMenuService(recipeRepo, menuRepo, pantryRepo, shoppingRepo)
+	menuService := services.NewMenuService(recipeRepo, menuRepo, pantryRepo, shoppingRepo, goalsRepo)
 	shoppingService := services.NewShoppingListService(shoppingRepo, menuRepo, recipeRepo, pantryRepo)
+	adminRecipeService := services.NewAdminRecipeService(recipeRepo)
 	
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(authService)
@@ -50,6 +51,7 @@ func main() {
 	pantryHandler := handlers.NewPantryHandler(pantryService)
 	menuHandler := handlers.NewMenuHandler(menuService)
 	shoppingHandler := handlers.NewShoppingListHandler(shoppingService)
+	adminRecipeHandler := handlers.NewAdminRecipeHandler(adminRecipeService)
 	
 	// Initialize Fiber app
 	app := fiber.New(fiber.Config{
@@ -91,9 +93,13 @@ func main() {
 	
 	// Menu routes
 	api.Post("/menus/generate", menuHandler.Generate)
+	api.Get("/menu/weekly", menuHandler.GenerateWeekly) // Генерация недельного меню
+	api.Post("/menu/weekly/save", menuHandler.SaveWeeklyMenu) // Сохранение недельного меню
+	api.Get("/menus/weekly", menuHandler.GetWeeklyMenus) // Получение всех недельных меню
 	api.Get("/menus/daily", menuHandler.GetDaily)
 	api.Get("/menus", menuHandler.GetAll)
 	api.Get("/menus/:id", menuHandler.GetByID)
+	api.Delete("/menus/:id", menuHandler.Delete) // Удаление меню
 	
 	// User goals routes
 	api.Post("/users/goals", userHandler.SetGoals)
@@ -106,6 +112,12 @@ func main() {
 	
 	// Shopping list routes
 	api.Get("/shopping-list/:menu_id", shoppingHandler.GetByMenuID)
+	
+	// Admin routes (требуют роль admin)
+	admin := api.Group("/admin", middleware.AdminMiddleware())
+	admin.Post("/recipes", adminRecipeHandler.Create)
+	admin.Post("/recipes/import", adminRecipeHandler.Import)
+	admin.Get("/recipes/export", adminRecipeHandler.Export)
 	
 	// Start server
 	port := os.Getenv("PORT")

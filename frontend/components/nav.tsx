@@ -30,11 +30,27 @@ export function Nav() {
     router.push("/auth/login")
   }
 
+  const [userRole, setUserRole] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Получаем роль из токена
+    const token = localStorage.getItem("token")
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]))
+        setUserRole(payload.role || "user")
+      } catch {
+        setUserRole("user")
+      }
+    }
+  }, [pathname])
+
   const navItems = [
     { href: "/", label: "Главная" },
     { href: "/recipes", label: "Рецепты" },
     { href: "/menus", label: "Меню" },
     { href: "/menu/generate", label: "Создать меню" },
+    { href: "/menu/weekly", label: "Меню на неделю" },
     { href: "/goals", label: "Цели" },
     { href: "/pantry", label: "Кладовая" },
   ]
@@ -61,6 +77,16 @@ export function Nav() {
             ))}
             {isAuthenticated ? (
               <>
+                {userRole === "admin" && (
+                  <Link href="/admin/recipes">
+                    <Button
+                      variant={pathname === "/admin/recipes" ? "default" : "ghost"}
+                      size="sm"
+                    >
+                      Админ
+                    </Button>
+                  </Link>
+                )}
                 <Link href="/profile">
                   <Button
                     variant={pathname === "/profile" ? "default" : "ghost"}
@@ -111,6 +137,16 @@ export function Nav() {
                 ))}
                 {isAuthenticated ? (
                   <>
+                    {userRole === "admin" && (
+                      <Link href="/admin/recipes" onClick={() => setOpen(false)}>
+                        <Button
+                          variant={pathname === "/admin/recipes" ? "default" : "ghost"}
+                          className="w-full justify-start"
+                        >
+                          Админ
+                        </Button>
+                      </Link>
+                    )}
                     <Link href="/profile" onClick={() => setOpen(false)}>
                       <Button
                         variant={pathname === "/profile" ? "default" : "ghost"}

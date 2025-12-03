@@ -10,10 +10,11 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"golang.org/x/crypto/bcrypt"
+
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/myplate/backend/internal/models"
 	"github.com/myplate/backend/internal/repositories"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService struct {
@@ -110,7 +111,7 @@ func (s *AuthService) AuthenticateTelegram(initData string) (*models.User, strin
 	}
 	
 	// Generate JWT token
-	token, err := s.GenerateJWT(user.ID)
+	token, err := s.GenerateJWT(user.ID, user.Role)
 	if err != nil {
 		return nil, "", err
 	}
@@ -118,9 +119,10 @@ func (s *AuthService) AuthenticateTelegram(initData string) (*models.User, strin
 	return user, token, nil
 }
 
-func (s *AuthService) GenerateJWT(userID int) (string, error) {
+func (s *AuthService) GenerateJWT(userID int, role string) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userID,
+		"role":    role,
 		"exp":     time.Now().Add(time.Hour * 24 * 7).Unix(), // 7 days
 	}
 	
@@ -128,7 +130,7 @@ func (s *AuthService) GenerateJWT(userID int) (string, error) {
 	return token.SignedString([]byte(s.jwtSecret))
 }
 
-func (s *AuthService) ValidateJWT(tokenString string) (int, error) {
+func (s *AuthService) ValidateJWT(tokenString string) (int, string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -137,18 +139,24 @@ func (s *AuthService) ValidateJWT(tokenString string) (int, error) {
 	})
 	
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
 	
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		userID, ok := claims["user_id"].(float64)
 		if !ok {
-			return 0, fmt.Errorf("invalid user_id in token")
+			return 0, "", fmt.Errorf("invalid user_id in token")
 		}
-		return int(userID), nil
+		
+		role, _ := claims["role"].(string)
+		if role == "" {
+			role = "user" // По умолчанию
+		}
+		
+		return int(userID), role, nil
 	}
 	
-	return 0, fmt.Errorf("invalid token")
+	return 0, "", fmt.Errorf("invalid token")
 }
 
 // CreateTestUser - создает тестового пользователя и возвращает токен (для разработки)
@@ -165,7 +173,7 @@ func (s *AuthService) CreateTestUser() (*models.User, string, error) {
 	}
 	
 	// Генерируем токен
-	token, err := s.GenerateJWT(user.ID)
+	token, err := s.GenerateJWT(user.ID, user.Role)
 	if err != nil {
 		return nil, "", err
 	}
@@ -197,7 +205,7 @@ func (s *AuthService) Register(email, password, firstName, lastName string) (*mo
 	}
 
 	// Генерируем JWT токен
-	token, err := s.GenerateJWT(user.ID)
+	token, err := s.GenerateJWT(user.ID, user.Role)
 	if err != nil {
 		return nil, "", fmt.Errorf("ошибка при генерации токена: %w", err)
 	}
@@ -227,7 +235,7 @@ func (s *AuthService) Login(email, password string) (*models.User, string, error
 	}
 
 	// Генерируем JWT токен
-	token, err := s.GenerateJWT(user.ID)
+	token, err := s.GenerateJWT(user.ID, user.Role)
 	if err != nil {
 		return nil, "", fmt.Errorf("ошибка при генерации токена: %w", err)
 	}
