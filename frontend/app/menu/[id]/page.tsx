@@ -6,6 +6,7 @@ import Link from "next/link"
 import api from "@/lib/api"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import MacrosChart from "@/components/macros-chart"
 
 interface MenuMeal {
   recipe_id: number
@@ -18,6 +19,9 @@ interface Recipe {
   id: number
   name: string
   description: string
+  proteins: number
+  fats: number
+  carbs: number
 }
 
 interface Menu {
@@ -112,6 +116,84 @@ export default function MenuDetailPage() {
           </CardContent>
         </Card>
       </div>
+
+      {(() => {
+        // Суммируем БЖУ из всех рецептов
+        const totalProteins = Object.values(recipes).reduce((sum, recipe) => sum + (recipe.proteins || 0), 0)
+        const totalFats = Object.values(recipes).reduce((sum, recipe) => sum + (recipe.fats || 0), 0)
+        const totalCarbs = Object.values(recipes).reduce((sum, recipe) => sum + (recipe.carbs || 0), 0)
+        
+        // Калории из макронутриентов
+        const proteinCalories = totalProteins * 4
+        const fatCalories = totalFats * 9
+        const carbCalories = totalCarbs * 4
+        const totalMacroCalories = proteinCalories + fatCalories + carbCalories
+        
+        // Проценты
+        const proteinPercent = totalMacroCalories > 0 ? (proteinCalories / totalMacroCalories) * 100 : 0
+        const fatPercent = totalMacroCalories > 0 ? (fatCalories / totalMacroCalories) * 100 : 0
+        const carbPercent = totalMacroCalories > 0 ? (carbCalories / totalMacroCalories) * 100 : 0
+        
+        return (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>БЖУ</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+                {/* Диаграмма слева */}
+                <div className="flex-shrink-0">
+                  <MacrosChart 
+                    proteins={totalProteins} 
+                    fats={totalFats} 
+                    carbs={totalCarbs}
+                    size={200}
+                    showLabels={false}
+                  />
+                </div>
+                
+                {/* Информация справа */}
+                <div className="flex-1 w-full md:w-auto">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 rounded bg-blue-500"></div>
+                        <span className="font-medium">Белки</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold">{totalProteins.toFixed(1)}г</div>
+                        <div className="text-sm text-muted-foreground">{proteinPercent.toFixed(1)}%</div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 rounded bg-orange-500"></div>
+                        <span className="font-medium">Жиры</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold">{totalFats.toFixed(1)}г</div>
+                        <div className="text-sm text-muted-foreground">{fatPercent.toFixed(1)}%</div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 rounded bg-green-500"></div>
+                        <span className="font-medium">Углеводы</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold">{totalCarbs.toFixed(1)}г</div>
+                        <div className="text-sm text-muted-foreground">{carbPercent.toFixed(1)}%</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )
+      })()}
 
       <div className="space-y-6">
         <h2 className="text-2xl font-bold">Блюда</h2>

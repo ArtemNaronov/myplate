@@ -7,6 +7,7 @@ import api from "@/lib/api"
 import { useTelegram } from "@/components/telegram-provider"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import MacrosChart from "@/components/macros-chart"
 
 interface RecipeDTO {
   id: number
@@ -289,6 +290,93 @@ export default function WeeklyMenuPage() {
       {weeklyMenu && weeklyMenu.week && weeklyMenu.week.length > 0 && (
         <div className="space-y-6">
           <h2 className="text-xl font-bold">Меню на неделю</h2>
+          
+          {/* Общая статистика за неделю */}
+          {(() => {
+            const weekTotal = weeklyMenu.week.reduce((acc, day) => ({
+              calories: acc.calories + (day.totalCalories || 0),
+              proteins: acc.proteins + (day.totalProteins || 0),
+              fats: acc.fats + (day.totalFats || 0),
+              carbs: acc.carbs + (day.totalCarbs || 0),
+              time: acc.time + (day.totalTime || 0)
+            }), { calories: 0, proteins: 0, fats: 0, carbs: 0, time: 0 })
+            
+            // Калории из макронутриентов
+            const proteinCalories = weekTotal.proteins * 4
+            const fatCalories = weekTotal.fats * 9
+            const carbCalories = weekTotal.carbs * 4
+            const totalMacroCalories = proteinCalories + fatCalories + carbCalories
+            
+            // Проценты
+            const proteinPercent = totalMacroCalories > 0 ? (proteinCalories / totalMacroCalories) * 100 : 0
+            const fatPercent = totalMacroCalories > 0 ? (fatCalories / totalMacroCalories) * 100 : 0
+            const carbPercent = totalMacroCalories > 0 ? (carbCalories / totalMacroCalories) * 100 : 0
+            
+            return (
+              <Card className="mb-6">
+                <CardHeader>
+                  <CardTitle>Итого за неделю</CardTitle>
+                  <CardDescription>
+                    {weekTotal.calories} ккал • {weekTotal.proteins.toFixed(1)}г Б • {weekTotal.fats.toFixed(1)}г Ж • {weekTotal.carbs.toFixed(1)}г У
+                    {weekTotal.time > 0 && ` • ${weekTotal.time} мин`}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+                    {/* Диаграмма слева */}
+                    <div className="flex-shrink-0">
+                      <MacrosChart 
+                        proteins={weekTotal.proteins} 
+                        fats={weekTotal.fats} 
+                        carbs={weekTotal.carbs}
+                        size={250}
+                        showLabels={false}
+                      />
+                    </div>
+                    
+                    {/* Информация справа */}
+                    <div className="flex-1 w-full md:w-auto">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-5 h-5 rounded bg-blue-500"></div>
+                            <span className="font-medium">Белки</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-semibold">{weekTotal.proteins.toFixed(1)}г</div>
+                            <div className="text-sm text-muted-foreground">{proteinPercent.toFixed(1)}%</div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-5 h-5 rounded bg-orange-500"></div>
+                            <span className="font-medium">Жиры</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-semibold">{weekTotal.fats.toFixed(1)}г</div>
+                            <div className="text-sm text-muted-foreground">{fatPercent.toFixed(1)}%</div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-5 h-5 rounded bg-green-500"></div>
+                            <span className="font-medium">Углеводы</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-semibold">{weekTotal.carbs.toFixed(1)}г</div>
+                            <div className="text-sm text-muted-foreground">{carbPercent.toFixed(1)}%</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })()}
+          
           {weeklyMenu.week.map((dayMenu) => (
             <Card key={dayMenu.day}>
               <CardHeader>
@@ -299,6 +387,77 @@ export default function WeeklyMenuPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {(() => {
+                  const dayProteins = dayMenu.totalProteins || 0
+                  const dayFats = dayMenu.totalFats || 0
+                  const dayCarbs = dayMenu.totalCarbs || 0
+                  
+                  // Калории из макронутриентов
+                  const dayProteinCalories = dayProteins * 4
+                  const dayFatCalories = dayFats * 9
+                  const dayCarbCalories = dayCarbs * 4
+                  const dayTotalMacroCalories = dayProteinCalories + dayFatCalories + dayCarbCalories
+                  
+                  // Проценты
+                  const dayProteinPercent = dayTotalMacroCalories > 0 ? (dayProteinCalories / dayTotalMacroCalories) * 100 : 0
+                  const dayFatPercent = dayTotalMacroCalories > 0 ? (dayFatCalories / dayTotalMacroCalories) * 100 : 0
+                  const dayCarbPercent = dayTotalMacroCalories > 0 ? (dayCarbCalories / dayTotalMacroCalories) * 100 : 0
+                  
+                  return (
+                    <div className="mb-6">
+                      <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+                        {/* Диаграмма слева */}
+                        <div className="flex-shrink-0">
+                          <MacrosChart 
+                            proteins={dayProteins} 
+                            fats={dayFats} 
+                            carbs={dayCarbs}
+                            size={200}
+                            showLabels={false}
+                          />
+                        </div>
+                        
+                        {/* Информация справа */}
+                        <div className="flex-1 w-full md:w-auto">
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-5 h-5 rounded bg-blue-500"></div>
+                                <span className="font-medium">Белки</span>
+                              </div>
+                              <div className="text-right">
+                                <div className="font-semibold">{dayProteins.toFixed(1)}г</div>
+                                <div className="text-sm text-muted-foreground">{dayProteinPercent.toFixed(1)}%</div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-5 h-5 rounded bg-orange-500"></div>
+                                <span className="font-medium">Жиры</span>
+                              </div>
+                              <div className="text-right">
+                                <div className="font-semibold">{dayFats.toFixed(1)}г</div>
+                                <div className="text-sm text-muted-foreground">{dayFatPercent.toFixed(1)}%</div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-5 h-5 rounded bg-green-500"></div>
+                                <span className="font-medium">Углеводы</span>
+                              </div>
+                              <div className="text-right">
+                                <div className="font-semibold">{dayCarbs.toFixed(1)}г</div>
+                                <div className="text-sm text-muted-foreground">{dayCarbPercent.toFixed(1)}%</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })()}
                 <div className="grid gap-4 md:grid-cols-3">
                   <div>
                     <h3 className="font-semibold mb-2">Завтрак</h3>

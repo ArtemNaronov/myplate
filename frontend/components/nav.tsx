@@ -12,6 +12,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { Menu } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export function Nav() {
   const pathname = usePathname()
@@ -106,6 +107,7 @@ export function Nav() {
                 </Button>
               </Link>
             )}
+            <ThemeToggle />
           </div>
 
           {/* Mobile Navigation */}
@@ -173,6 +175,12 @@ export function Nav() {
                     </Button>
                   </Link>
                 )}
+                <div className="pt-4 border-t">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Тема</span>
+                    <ThemeToggle />
+                  </div>
+                </div>
               </nav>
             </SheetContent>
           </Sheet>
