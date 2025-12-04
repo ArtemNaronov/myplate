@@ -8,6 +8,8 @@ import { useTelegram } from "@/components/telegram-provider"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import MacrosChart from "@/components/macros-chart"
+import { Download } from "lucide-react"
+import { exportWeeklyMenuToPDF } from "@/lib/export-menu"
 
 interface RecipeDTO {
   id: number
@@ -274,7 +276,7 @@ export default function WeeklyMenuPage() {
       )}
 
       {viewMode && weeklyMenu && (
-        <div className="mb-4">
+        <div className="mb-4 flex gap-2">
           <Button 
             variant="outline" 
             onClick={() => {
@@ -284,12 +286,40 @@ export default function WeeklyMenuPage() {
           >
             Создать новое меню
           </Button>
+          <Button 
+            variant="default" 
+            onClick={async () => {
+              if (weeklyMenu && weeklyMenu.week) {
+                // Убеждаемся, что ингредиенты передаются
+                console.log('Exporting menu with data:', weeklyMenu)
+                await exportWeeklyMenuToPDF(weeklyMenu)
+              }
+            }}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Экспорт PDF
+          </Button>
         </div>
       )}
 
       {weeklyMenu && weeklyMenu.week && weeklyMenu.week.length > 0 && (
         <div className="space-y-6">
-          <h2 className="text-xl font-bold">Меню на неделю</h2>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <h2 className="text-xl font-bold">Меню на неделю</h2>
+            {!viewMode && (
+              <Button 
+                variant="default" 
+                onClick={async () => {
+                  if (weeklyMenu && weeklyMenu.week) {
+                    await exportWeeklyMenuToPDF(weeklyMenu)
+                  }
+                }}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Экспорт PDF
+              </Button>
+            )}
+          </div>
           
           {/* Общая статистика за неделю */}
           {(() => {

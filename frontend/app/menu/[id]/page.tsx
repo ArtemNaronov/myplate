@@ -7,6 +7,8 @@ import api from "@/lib/api"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import MacrosChart from "@/components/macros-chart"
+import { Download } from "lucide-react"
+import { exportDailyMenuToPDF } from "@/lib/export-menu"
 
 interface MenuMeal {
   recipe_id: number
@@ -22,6 +24,7 @@ interface Recipe {
   proteins: number
   fats: number
   carbs: number
+  ingredients?: Array<{ name: string; quantity: number; unit: string }>
 }
 
 interface Menu {
@@ -75,6 +78,39 @@ export default function MenuDetailPage() {
     }
   }
 
+  const handleExportPDF = async () => {
+    if (!menu) return
+
+    // Суммируем БЖУ из всех рецептов
+    const totalProteins = Object.values(recipes).reduce((sum, recipe) => sum + (recipe.proteins || 0), 0)
+    const totalFats = Object.values(recipes).reduce((sum, recipe) => sum + (recipe.fats || 0), 0)
+    const totalCarbs = Object.values(recipes).reduce((sum, recipe) => sum + (recipe.carbs || 0), 0)
+
+    const menuData = {
+      date: menu.date,
+      total_calories: menu.total_calories,
+      total_time: menu.total_time,
+      meals: menu.meals.map(meal => {
+        const recipe = recipes[meal.recipe_id]
+        return {
+          meal_type: meal.meal_type,
+          recipe_name: recipe?.name || 'Неизвестное блюдо',
+          calories: meal.calories,
+          time: meal.time,
+          proteins: recipe?.proteins,
+          fats: recipe?.fats,
+          carbs: recipe?.carbs,
+          ingredients: recipe?.ingredients,
+        }
+      }),
+      totalProteins,
+      totalFats,
+      totalCarbs,
+    }
+
+    await exportDailyMenuToPDF(menuData)
+  }
+
   if (loading) {
     return <div className="container mx-auto px-4 py-8">Загрузка...</div>
   }
@@ -90,9 +126,19 @@ export default function MenuDetailPage() {
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">Меню на {new Date(menu.date).toLocaleDateString('ru-RU')}</h1>
           <p className="text-muted-foreground">Ваше ежедневное меню</p>
         </div>
-        <Link href={`/shopping-list/${menu.id}`} className="w-full sm:w-auto">
-          <Button className="w-full sm:w-auto">Список покупок</Button>
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button 
+            variant="outline" 
+            className="w-full sm:w-auto"
+            onClick={handleExportPDF}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Экспорт PDF
+          </Button>
+          <Link href={`/shopping-list/${menu.id}`} className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto">Список покупок</Button>
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 mb-8">
