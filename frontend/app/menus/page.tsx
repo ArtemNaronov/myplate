@@ -104,43 +104,56 @@ export default function MenusPage() {
   }
 
   if (loading) {
-    return <div className="container mx-auto px-4 py-8">Загрузка...</div>
+    return (
+      <div className="min-h-screen gradient-bg flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
+          <p className="mt-4 text-muted-foreground">Загрузка меню...</p>
+        </div>
+      </div>
+    )
   }
 
   const hasAnyMenus = menus.length > 0 || weeklyMenus.length > 0
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold">Мои меню</h1>
-        <div className="flex gap-2">
-          <Link href="/menu/generate">
-            <Button variant="outline" size="sm">Создать меню на день</Button>
-          </Link>
-          <Link href="/menu/weekly">
-            <Button variant="outline" size="sm">Создать меню на неделю</Button>
-          </Link>
+    <div className="min-h-screen gradient-bg">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Мои меню
+            </h1>
+            <p className="text-muted-foreground">Управляйте вашими сохраненными меню</p>
+          </div>
+          <div className="flex gap-2">
+            <Link href="/menu/generate">
+              <Button variant="outline" size="sm">Создать меню на день</Button>
+            </Link>
+            <Link href="/menu/weekly">
+              <Button variant="outline" size="sm">Создать меню на неделю</Button>
+            </Link>
+          </div>
         </div>
-      </div>
 
       {/* Табы */}
-      <div className="flex border-b mb-6">
+      <div className="flex gap-2 mb-6 bg-muted/50 p-1 rounded-lg">
         <button
           onClick={() => setActiveTab("daily")}
-          className={`px-4 py-2 font-medium transition-colors ${
+          className={`px-4 py-2 font-medium rounded-md transition-all duration-300 ${
             activeTab === "daily"
-              ? "border-b-2 border-primary text-primary"
-              : "text-muted-foreground hover:text-foreground"
+              ? "bg-primary text-primary-foreground shadow-md"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
           }`}
         >
           Меню на день ({menus.length})
         </button>
         <button
           onClick={() => setActiveTab("weekly")}
-          className={`px-4 py-2 font-medium transition-colors ${
+          className={`px-4 py-2 font-medium rounded-md transition-all duration-300 ${
             activeTab === "weekly"
-              ? "border-b-2 border-primary text-primary"
-              : "text-muted-foreground hover:text-foreground"
+              ? "bg-primary text-primary-foreground shadow-md"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
           }`}
         >
           Меню на неделю ({weeklyMenus.length})
@@ -171,10 +184,10 @@ export default function MenusPage() {
               ) : (
                 <div className="grid gap-4">
                   {menus.map((menu) => (
-                    <Card key={menu.id}>
+                    <Card key={menu.id} className="card-hover">
                       <CardHeader>
-                        <CardTitle>Меню на {new Date(menu.date).toLocaleDateString('ru-RU')}</CardTitle>
-                        <CardDescription>
+                        <CardTitle className="text-xl">Меню на {new Date(menu.date).toLocaleDateString('ru-RU')}</CardTitle>
+                        <CardDescription className="text-base">
                           {menu.total_calories} ккал • {menu.total_time} мин
                         </CardDescription>
                       </CardHeader>
@@ -217,10 +230,10 @@ export default function MenusPage() {
               ) : (
                 <div className="grid gap-4">
                   {weeklyMenus.map((weeklyMenu) => (
-                    <Card key={weeklyMenu.id}>
+                    <Card key={weeklyMenu.id} className="card-hover">
                       <CardHeader>
-                        <CardTitle>Меню на неделю</CardTitle>
-                        <CardDescription>
+                        <CardTitle className="text-xl">Меню на неделю</CardTitle>
+                        <CardDescription className="text-base">
                           Создано {new Date(weeklyMenu.date).toLocaleDateString('ru-RU')} • {weeklyMenu.week.length} дней • {weeklyMenu.week.reduce((sum, day) => sum + (day.totalCalories || 0), 0)} ккал всего
                         </CardDescription>
                       </CardHeader>
@@ -258,6 +271,7 @@ export default function MenusPage() {
           )}
         </div>
       )}
+      </div>
     </div>
   )
 }

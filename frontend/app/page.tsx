@@ -1,102 +1,111 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { 
+  BookOpen, 
+  UtensilsCrossed, 
+  Calendar, 
+  Target, 
+  Package, 
+  ClipboardList, 
+  ShoppingCart,
+  Sparkles
+} from "lucide-react"
+
+const features = [
+  {
+    title: "Рецепты",
+    description: "Просмотрите нашу коллекцию рецептов",
+    href: "/recipes",
+    icon: BookOpen,
+    gradient: "from-blue-500 to-cyan-500",
+  },
+  {
+    title: "Генератор меню",
+    description: "Создайте ваше ежедневное меню",
+    href: "/menu/generate",
+    icon: UtensilsCrossed,
+    gradient: "from-green-500 to-emerald-500",
+  },
+  {
+    title: "Меню на неделю",
+    description: "Создайте меню на 7 дней с учетом семьи",
+    href: "/menu/weekly",
+    icon: Calendar,
+    gradient: "from-purple-500 to-pink-500",
+  },
+  {
+    title: "Мои цели",
+    description: "Установите ваши цели по питанию",
+    href: "/goals",
+    icon: Target,
+    gradient: "from-orange-500 to-red-500",
+  },
+  {
+    title: "Кладовая",
+    description: "Управляйте вашими ингредиентами",
+    href: "/pantry",
+    icon: Package,
+    gradient: "from-amber-500 to-yellow-500",
+  },
+  {
+    title: "Мои меню",
+    description: "Просмотрите все ваши созданные меню",
+    href: "/menus",
+    icon: ClipboardList,
+    gradient: "from-indigo-500 to-blue-500",
+  },
+  {
+    title: "Список покупок",
+    description: "Просмотрите ваши списки покупок",
+    href: "/shopping-list",
+    icon: ShoppingCart,
+    gradient: "from-teal-500 to-green-500",
+  },
+]
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
+    <div className="min-h-screen gradient-bg">
       <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-4">MyPlateService</h1>
-          <p className="text-lg sm:text-xl text-muted-foreground">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 mb-4">
+            <Sparkles className="h-8 w-8 text-primary" />
+            <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              MyPlateService
+            </h1>
+          </div>
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
             Помощник по рецептам и ежедневному меню
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
-          <Card className="flex flex-col">
-            <CardHeader>
-              <CardTitle>Рецепты</CardTitle>
-              <CardDescription>Просмотрите нашу коллекцию рецептов</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col justify-end">
-              <Link href="/recipes">
-                <Button className="w-full">Просмотреть рецепты</Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="flex flex-col">
-            <CardHeader>
-              <CardTitle>Генератор меню</CardTitle>
-              <CardDescription>Создайте ваше ежедневное меню</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col justify-end">
-              <Link href="/menu/generate">
-                <Button className="w-full">Создать меню</Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="flex flex-col">
-            <CardHeader>
-              <CardTitle>Меню на неделю</CardTitle>
-              <CardDescription>Создайте меню на 7 дней с учетом семьи</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col justify-end">
-              <Link href="/menu/weekly">
-                <Button className="w-full">Создать недельное меню</Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="flex flex-col">
-            <CardHeader>
-              <CardTitle>Мои цели</CardTitle>
-              <CardDescription>Установите ваши цели по питанию</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col justify-end">
-              <Link href="/goals">
-                <Button className="w-full">Установить цели</Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="flex flex-col">
-            <CardHeader>
-              <CardTitle>Кладовая</CardTitle>
-              <CardDescription>Управляйте вашими ингредиентами</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col justify-end">
-              <Link href="/pantry">
-                <Button className="w-full">Просмотреть кладовую</Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="flex flex-col">
-            <CardHeader>
-              <CardTitle>Мои меню</CardTitle>
-              <CardDescription>Просмотрите все ваши созданные меню</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col justify-end">
-              <Link href="/menus">
-                <Button className="w-full">Просмотреть меню</Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card className="flex flex-col">
-            <CardHeader>
-              <CardTitle>Список покупок</CardTitle>
-              <CardDescription>Просмотрите ваши списки покупок</CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col justify-end">
-              <Link href="/shopping-list">
-                <Button className="w-full" variant="outline">Просмотреть списки</Button>
-              </Link>
-            </CardContent>
-          </Card>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
+          {features.map((feature) => {
+            const Icon = feature.icon
+            return (
+              <Card 
+                key={feature.href}
+                className="flex flex-col card-hover group overflow-hidden relative"
+              >
+                <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
+                <CardHeader className="relative">
+                  <div className={`inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br ${feature.gradient} mb-4 shadow-lg`}>
+                    <Icon className="h-6 w-6 text-white" />
+                  </div>
+                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                  <CardDescription className="text-sm">{feature.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col justify-end relative">
+                  <Link href={feature.href}>
+                    <Button className="w-full group-hover:shadow-lg transition-all duration-300">
+                      Открыть
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       </div>
     </div>

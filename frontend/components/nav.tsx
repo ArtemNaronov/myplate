@@ -57,10 +57,10 @@ export function Nav() {
   ]
 
   return (
-    <nav className="sticky top-0 z-50 border-b bg-background">
+    <nav className="sticky top-0 z-50 border-b glass backdrop-blur-xl bg-background/80">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="text-xl font-bold">
+          <Link href="/" className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent hover:opacity-80 transition-opacity">
             MyPlateService
           </Link>
           
